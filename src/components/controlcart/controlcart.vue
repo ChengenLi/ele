@@ -17,7 +17,7 @@
 import vue from 'vue'
 export default {
   name: 'controlcart',
-  props: ['food'],
+  props: ['food', 'dropEvent'],
   created () {
   	vue.set(this.food,'count',0)
   },
@@ -27,6 +27,8 @@ export default {
   			return
   		}
   		this.food.count++
+
+  		this.dropEvent.$emit('drop', event.target)
   	},
   	removeFoods (event) {
   		if(!event._constructed){

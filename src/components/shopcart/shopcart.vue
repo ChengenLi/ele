@@ -7,13 +7,22 @@
 			  		<span class="ele-fontshopping_cart"></span>
 		  		</div>
 		  		<div class="count" v-if="totalCount>0">{{totalCount}}</div>
+		  		<transition v-on:before-enter="beforeEnter2" v-on:enter="enter2" name="wrapperDrop">	
+			  		<div class="ball-wrapper"  v-show="ballShow">
+			  			<transition v-on:before-enter="beforeEnter1" v-on:enter="enter1" name="ballDrop">	
+			  				<div class="ball" v-show="ballShow" ></div>
+			  			</transition>
+			  		</div>
+		  		</transition>
 		  	</div>
 	  		<div class="total" :class="{'hightlight':totalCount>0}">￥{{totalPrice}}</div>
 	  		<div class="desc">另需配送费{{deliveryPrice}}元</div>
 	  	</div>
+	  	
 	  	<div class="content-right">
 	  		<div class="pay" :class="{'enough': decPay==='去结算'}">{{decPay}}</div>
 	  	</div>
+		
   	</div>
   </div>
 </template>
@@ -21,7 +30,15 @@
 <script>
 export default {
   name: 'shopcart',
-  props: ['minPrice','deliveryPrice','selectFoods'],
+  props: ['minPrice','deliveryPrice','selectFoods', 'dropEvent'],
+  data () {
+  	return {
+  		ballShow: false,
+  		x: 0,
+  		y: 0,
+  		winHeight: 0,
+  	}
+  },
   computed: {
   	totalPrice () {
   		let price = 0
@@ -46,6 +63,42 @@ export default {
   		}else{
   			return '去结算'
   		}
+  	}
+  },
+  mounted () {
+  		if (window.innerHeight){
+			this.winHeight = window.innerHeight
+		}
+		else if ((document.body) && (document.body.clientHeight)){
+			this.winHeight = document.body.clientHeight
+		}
+  		this.dropEvent.$on('drop',(el) => {
+  			this.y = -(this.winHeight-el.getBoundingClientRect().top - 22 - 32)
+  			this.x = el.getBoundingClientRect().left - 32
+  			this.ballShow = !this.ballShow
+  		})
+  },
+  methods: {
+  	beforeEnter1 (el) {
+  		el.style.webkitTransform = `translate(${this.x}px,0)`
+  		el.style.transform = `translate(${this.x}px,0)`
+  		},
+  	enter1 (el, done) {
+  		let rf = el.offsetHeight
+  		el.style.webkitTransform = 'translate(0, 0)'
+  		el.style.transform = 'translate(0, 0)'
+  		window.setTimeout(() => {
+  			this.ballShow = !this.ballShow
+  		}, 500)
+  	},
+  	beforeEnter2 (el) {
+  		el.style.webkitTransform = `translate(0, ${this.y}px)`
+  		el.style.transform = `translate(0, ${this.y}px)`
+  		},
+  	enter2 (el, done) {
+  		let rf = el.offsetHeight
+  		el.style.webkitTransform = 'translate(0, 0)'
+  		el.style.transform = 'translate(0, 0)'
   	}
   }
 }
@@ -114,6 +167,25 @@ export default {
 							color: #fff;
 						}
 					}
+					.ball-wrapper{
+						position: fixed;
+						left: 32px;
+						bottom: 22px;
+						z-index: 200;
+						&.wrapperDrop-enter-active{
+							transition: all .4s cubic-bezier(.36,-0.63,.85,.57);
+						}
+						.ball{
+							width: 16px;
+							height: 16px;
+							border-radius: 50%;
+							background-color: rgb(0,160,220);
+							&.ballDrop-enter-active{
+								transition: all .4s linear ;
+							}
+						}
+						
+					}									
 				}
 				.total{
 					display: inline-block;

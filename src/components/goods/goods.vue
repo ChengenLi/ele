@@ -23,13 +23,13 @@
 						<span class="price">￥{{food.price}}</span><span class="oldPrice" v-if="food.oldPrice">￥{{food.oldPrice}}</span>
 					</div>
 					<div class="controlcart-wrapper">
-						<controlcart :food="food"></controlcart>
+						<controlcart :food="food" :dropEvent="dropEvent"></controlcart>
 					</div>
   				</div>
   			</li>
   		</ul>
   	</div>
-  	<shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectFoods"></shopcart>
+  	<shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectFoods" :dropEvent="dropEvent"></shopcart>
   </div>
 </template>
 
@@ -38,6 +38,8 @@ const ERROK = 0
 import BScroll from "better-scroll"
 import shopcart from "../shopcart/shopcart.vue" 
 import controlcart from "../controlcart/controlcart.vue"
+import vue from "vue"
+var dropEvent = new vue()
 export default {
   name: 'goods',
   props: ['seller'],
@@ -47,7 +49,8 @@ export default {
   		goods: [],
   		iconMap: ['decrease', 'discount', 'special', 'invoice', 'guarantee'],
   		foodsHeightList: [],
-  		scrollY: 0
+  		scrollY: 0,
+  		dropEvent: dropEvent
   	}
   },
   created () {
