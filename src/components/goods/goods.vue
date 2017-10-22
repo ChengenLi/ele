@@ -29,7 +29,7 @@
   			</li>
   		</ul>
   	</div>
-  	<shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectFoods" :dropEvent="dropEvent"></shopcart>
+  	<shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :selectFoods="selectFoods" :dropEvent="dropEvent" @clear="clear"></shopcart>
   </div>
 </template>
 
@@ -122,6 +122,16 @@ export default {
     	let foodList = this.$refs.foodWrapper.getElementsByClassName('food-item-hook')
     	let el = foodList[index]
     	this.foodScroll.scrollToElement(el,300)
+    },
+
+    clear () {
+    	this.goods.forEach((foods) =>{
+  			foods.foods.forEach((food) => {
+  				if(food.count){
+  					food.count = 0
+  				}
+  			})
+  		})
     }
   }
 }

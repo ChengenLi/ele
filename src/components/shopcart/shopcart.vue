@@ -1,6 +1,6 @@
 <template>
   <div class="shopcart">
-	<div class="content">
+	<div class="content" @click = "show = !show">
 	  	<div class="content-left">
 	  		<div class="logo-wrapper">
 	  			<div class="logo" :class="{'hightlight':totalCount>0}">
@@ -18,25 +18,47 @@
 	  		<div class="total" :class="{'hightlight':totalCount>0}">￥{{totalPrice}}</div>
 	  		<div class="desc">另需配送费{{deliveryPrice}}元</div>
 	  	</div>
-	  	
 	  	<div class="content-right">
 	  		<div class="pay" :class="{'enough': decPay==='去结算'}">{{decPay}}</div>
 	  	</div>
-		
   	</div>
+  	<transition name="slider">
+  	<div class="shopcart-list-wrapper" v-show="listShow">
+	  		<div class="header">
+	  			<span class="name">购物车</span>
+	  			<span class="clear" @click="clearShopcart">清空</span>
+	  		</div>
+			<div class="shopcart-list" ref="shopcartList" >
+				<ul>
+					<li class="list-item" v-for="food in selectFoods">
+						<div class="name">{{food.name}}</div>
+						<div class="price">￥{{food.price}}</div>
+						<div class="shopcartcontrol-wrapper">
+							<controlcart :food="food" :dropEvent="dropEvent"></controlcart>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="list-bottom"></div>
+	  </div>
+	  </transition>
   </div>
 </template>
 
 <script>
+import controlcart from "../controlcart/controlcart.vue"
+import BScroll from "better-scroll"
 export default {
   name: 'shopcart',
   props: ['minPrice','deliveryPrice','selectFoods', 'dropEvent'],
+  components: {controlcart},
   data () {
   	return {
   		ballShow: false,
   		x: 0,
   		y: 0,
   		winHeight: 0,
+  		show:　false
   	}
   },
   computed: {
@@ -62,6 +84,23 @@ export default {
   			return `还差${diff}起送`
   		}else{
   			return '去结算'
+  		}
+  	},
+  	listShow () {
+  		if (this.show && this.selectFoods.length > 0) {
+  			this.$nextTick(() => {
+  				if(!this.scroll){
+  				this.scroll = new BScroll(this.$refs.shopcartList,{click:true})
+  				}else{
+  				this.scroll.refresh()
+  				}
+  			})
+  			return true
+  		}else if(this.show){
+  			this.show = false
+  			return false
+  		}else{
+  			return false
   		}
   	}
   },
@@ -89,7 +128,7 @@ export default {
   		el.style.transform = 'translate(0, 0)'
   		window.setTimeout(() => {
   			this.ballShow = !this.ballShow
-  		}, 500)
+  		}, 400)
   	},
   	beforeEnter2 (el) {
   		el.style.webkitTransform = `translate(0, ${this.y}px)`
@@ -99,13 +138,17 @@ export default {
   		let rf = el.offsetHeight
   		el.style.webkitTransform = 'translate(0, 0)'
   		el.style.transform = 'translate(0, 0)'
+  	},
+  	clearShopcart () {
+  		this.$emit('clear')
   	}
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less">
+	@import "../../common/less/mixin.less";
+
 	.shopcart{
 		position: fixed;
 		bottom: 0;
@@ -113,7 +156,6 @@ export default {
 		width: 100%;
 		height: 48px;
 		background-color: #ccc;
-		z-index: 50;
 		.content{
 			display: flex;
 			background-color: #141d27;
@@ -223,6 +265,80 @@ export default {
 						background-color: #00b43c;
 						color: #fff;}
 				}
+			}
+		}
+		.shopcart-list-wrapper{
+			position: absolute;
+			width: 100%;
+			left: 0;
+			bottom: 0;
+			z-index: -1;
+			&.slider-enter-active, &.slider-leave-active{
+				transition: all .4s linear;
+			}
+			&.slider-enter, &.slider-leave-to{
+				transform: translateY(100%);
+			}
+			.header{
+				height: 40px;
+				width: 100%;
+				background-color: #f3f5f7;
+				border-bottom: 1px solid rgba(7,17,27,0.1);
+				.name{
+					font-size: 14px;
+					line-height: 40px;
+					font-weight: 200;
+					color: rgb(7,17,27);
+					padding-left: 18px;
+				}
+				.clear{
+					position: absolute;
+					font-size: 12px;
+					line-height: 40px;
+					color: rgb(0,160,220);
+					right: 18px;
+				}
+			}
+			.shopcart-list{
+				max-height: 205px;
+				background-color: #fff;
+				overflow: hidden;
+				.list-item{
+					height: 48px;
+					position: relative;
+					margin: 0 18px;
+					&:last-child{
+						margin-bottom: 1px;
+					}
+					.border-1px(rgba(7,17,27,0.1));
+					.name{
+						font-size: 14px;
+						line-height: 24px;
+						color: rgb(7,17,27);
+						padding: 12px 0;
+					}
+					.price{
+						position: absolute;
+						font-weight: 700;
+						font-size: 14px;
+						color: rgb(240,20,20);
+						line-height: 24px;
+						right: 90px;
+						top: 12px;
+					}
+					.shopcartcontrol-wrapper{
+						position: absolute;
+						right: 0;
+						top: 7px;
+						border-bottom: 0;
+
+					}
+				}
+			}
+			.list-bottom{
+				height: 60px;
+				width: 100%;
+				background-color: #fff;
 			}
 		}
 	}

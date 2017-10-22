@@ -18,13 +18,13 @@ import vue from 'vue'
 export default {
   name: 'controlcart',
   props: ['food', 'dropEvent'],
-  created () {
-  	vue.set(this.food,'count',0)
-  },
   methods: {
   	addFoods (event) {
   		if(!event._constructed){
   			return
+  		}
+  		if(!this.food.count) {
+  		vue.set(this.food,'count', 0)
   		}
   		this.food.count++
 
